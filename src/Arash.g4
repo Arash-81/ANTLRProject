@@ -27,15 +27,54 @@ optionalParameter: DataTypeList ID ASSIGN literal (COMMA DataTypeList ID ASSIGN 
 
 
 statementBlock: BEGIN statement+ END;
-statement: assignment | ifStatement | forStatement | whileStatement | switchCase | exception | print | return;
+statement: assignment | ifStatement | forStatement | whileStatement | switchCase |
+ exception | print | return | instantiation | functionCall | conditionalExpression;
 
-assignment:	leftHandSide assignmentOperator expression;
+assignment:	leftHandSide assignmentOperator expression SEMI;
 leftHandSide:	expressionName | arrayAccess;
+arrayAccess: ID LBRACK expression RBRACK;
 assignmentOperator:	'=' |	'*=' |	'/=' | '%=' | '+=' |	'-=' |	'<<=' |	'>>=' | '>>>=' | '&=' | '^=' | '|=';
 
-conditionalExpression: conditionalOrExpression | conditionalOrExpression '?' expression ':' conditionalExpression;
 
-expressionName:	ID |	ambiguousName '.' ID;
+expression: LPAREN expression RPAREN | expression '**' expression | expression (ADD | SUB) expression |
+expression (MUL | DIV | MOD) expression | expressionName | literal;
+
+unaryExpression:	preIncrementExpression |	preDecrementExpression
+	|	'+' unaryExpression |	'-' unaryExpression |	unaryExpressionNotPlusMinus;
+preIncrementExpression:	'++' unaryExpression;
+preDecrementExpression:	'--' unaryExpression;
+unaryExpressionNotPlusMinus:	'~' unaryExpression | '!' unaryExpression;
+
+conditionalExpression: expression '?' expression ':' expression;
+
+forStatement: for1 | for2;
+for1: FOR LPAREN DataTypeList initilization SEMI expression (SEMI expressionName (INC | DEC))? RPAREN statementBlock;
+initilization: expressionName ASSIGN IntegerLiteral;
+for2: FOR  expressionName IN expressionName statementBlock;
+
+whileStatement: while | doWhile;
+while: WHILE LPAREN expression RPAREN statementBlock;
+doWhile: DO statementBlock WHILE LPAREN expression RPAREN;
+
+ifStatement: IF LPAREN expression RPAREN statementBlock elseIf* else?;
+elseIf: ELSE IF LPAREN expression RPAREN statementBlock;
+else: ELSE statementBlock;
+
+return: RETURN expression SEMI;
+
+switchCase: SWITCH expression BEGIN case+ default? END;
+case: CASE literal COLON statementBlock BREAK?;
+default: DEFAULT COLON statementBlock BREAK?;
+
+exception: TRY statementBlock CATCH LPAREN expressionName (COMMA expressionName)* RPAREN statementBlock;
+
+print: PRINT LPAREN expression RPAREN SEMI;
+
+functionCall: expressionName LPAREN expression (COMMA expression)* RPAREN;
+
+instantiation: expressionName;
+
+expressionName: ID | ambiguousName '.' ID;
 ambiguousName:	ID |	ambiguousName '.' ID;
 
 
@@ -84,6 +123,7 @@ BREAK : 'break';
 DEFAULT : 'default';
 TRY : 'try';
 CATCH : 'catch';
+PRINT: 'print';
 
 // Separators
 LPAREN : '(';
