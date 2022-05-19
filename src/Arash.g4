@@ -1,21 +1,39 @@
 grammar Arash;
 //Arash Gholamdokht 9922762286
 
-start: importDeclaration* classDecl+;
+start: importDecl* classDecl+;
 
-importDeclaration: REQUIRE;
-classDecl: CLASS;
+importDecl: ID ASSIGN REQUIRE LANGLE ID RANGLE SEMI |
+ID (COMMA ID)* ASSIGN FROM LANGLE ID RANGLE REQUIRE LANGLE ID RANGLE
+(FROM LANGLE ID RANGLE REQUIRE LANGLE ID RANGLE)* SEMI |
+ID ASSIGN FROM LANGLE ID RANGLE '=>' LANGLE ID RANGLE SEMI;
+
+classDecl: CLASS ID (LPAREN ID RPAREN)? (IMPLEMENTS ID (COMMA ID)*)? classBody;
 classBody: BEGIN classBodyDeclaration+ END;
 
-classBodyDeclaration: classMemberDecl | functionDecl |	constructorDecl;
+classBodyDeclaration: constructorDecl | classMemberDecl | functionDecl;
+constructorDecl: ID LPAREN (DataTypeList ID (COMMA DataTypeList ID)*)? RPAREN constructorBody;
+constructorBody: BEGIN (THIS DOT ID ASSIGN ID SEMI)+ END;
 
+classMemberDecl: AccessLevel? CONST? DataTypeList (variableDeclaratorList | arrayDecl) SEMI;
 variableDeclaratorList:	variableDeclarator (',' variableDeclarator)*;
+variableDeclarator: ID (ASSIGN literal)?;
+arrayDecl: ID LBRACK RBRACK (ASSIGN NEW DataTypeList LBRACK IntegerLiteral RBRACK)?;
 
-variableDeclarator: variableDeclaratorId ('=' variableInitializer)?;
+functionDecl: AccessLevel? (DataTypeList | VOID) ID LPAREN parameters RPAREN statementBlock;
+parameters: parameter optionalParameter;
+parameter: DataTypeList ID (COMMA DataTypeList ID)*;
+optionalParameter: DataTypeList ID ASSIGN literal (COMMA DataTypeList ID ASSIGN literal)*;
 
 
+statementBlock: BEGIN statement+ END;
+statement: assignment | ifStatement | forStatement | whileStatement | switchCase | exception | print | return;
 
+assignment:	leftHandSide assignmentOperator expression;
+leftHandSide:	expressionName | arrayAccess;
+assignmentOperator:	'=' |	'*=' |	'/=' | '%=' | '+=' |	'-=' |	'<<=' |	'>>=' | '>>>=' | '&=' | '^=' | '|=';
 
+conditionalExpression: conditionalOrExpression | conditionalOrExpression '?' expression ':' conditionalExpression;
 
 expressionName:	ID |	ambiguousName '.' ID;
 ambiguousName:	ID |	ambiguousName '.' ID;
@@ -23,19 +41,21 @@ ambiguousName:	ID |	ambiguousName '.' ID;
 
 literal:	IntegerLiteral |	DoubleLiteral |	BooleanLiteral |	CharacterLiteral |	StringLiteral | NullLiteral;
 
-//Lexers
+//fragments
 fragment NonZeroDigit: [1-9];
 fragment Digit: [0-9];
 fragment Letter: [a-zA-Z];
 fragment Sign: [+-];
+
 //Literals
 DoubleLiteral: Sign? NonZeroDigit Digit;
 IntegerLiteral: Sign? ('0' | NonZeroDigit Digit*);
-ScientificNotation: ;
+ScientificNotation: (Sign)? Digit? DOT Digit* [eE] Sign Digit* ;
 BooleanLiteral: 'true' | 'false';
 CharacterLiteral: '\'' ~['\\\r\n] '\'';
 StringLiteral: '"' ~["\\\r\n]* '"';
 NullLiteral: 'Null';
+
 // Keywords
 DataTypeList: 'int' | 'double' | 'bool' | 'string' | 'char';
 AccessLevel: 'private' | 'public';
@@ -44,9 +64,11 @@ BEGIN: 'begin';
 END: 'end';
 FROM: 'from';
 CONST : 'const';
+NEW: 'new';
 CLASS : 'class';
 IMPLEMENTS : 'implements';
 THIS : 'this';
+VOID: 'void';
 RETURN: 'return';
 FOR: 'for';
 AND: 'and';
@@ -62,6 +84,7 @@ BREAK : 'break';
 DEFAULT : 'default';
 TRY : 'try';
 CATCH : 'catch';
+
 // Separators
 LPAREN : '(';
 RPAREN : ')';
@@ -74,6 +97,7 @@ RANGLE: '>';
 SEMI : ';';
 COMMA : ',';
 DOT : '.';
+
 // Operators
 ASSIGN : '=';
 BANG : '!';
@@ -98,17 +122,6 @@ CARET : '^';
 MOD : '%';
 ARROW : '->';
 
-ADD_ASSIGN : '+=';
-SUB_ASSIGN : '-=';
-MUL_ASSIGN : '*=';
-DIV_ASSIGN : '/=';
-AND_ASSIGN : '&=';
-OR_ASSIGN : '|=';
-XOR_ASSIGN : '^=';
-MOD_ASSIGN : '%=';
-LSHIFT_ASSIGN : '<<=';
-RSHIFT_ASSIGN : '>>=';
-URSHIFT_ASSIGN : '>>>=';
 
 ID: (Letter | '$') (Letter | Digit | '$' | '_')+;
 WS :  [ \t\r\n]+ -> skip;
