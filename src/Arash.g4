@@ -5,7 +5,7 @@ start: importDecl* classDecl+;
 
 importDecl: ID ASSIGN REQUIRE LANGLE ID RANGLE SEMI |
 ID (COMMA ID)* ASSIGN FROM LANGLE ID RANGLE REQUIRE LANGLE ID RANGLE
-(FROM LANGLE ID RANGLE REQUIRE LANGLE ID RANGLE)* SEMI |
+(COMMA FROM LANGLE ID RANGLE REQUIRE LANGLE ID RANGLE)* SEMI |
 ID ASSIGN FROM LANGLE ID RANGLE '=>' LANGLE ID RANGLE SEMI;
 
 classDecl: CLASS ID (LPAREN ID RPAREN)? (IMPLEMENTS ID (COMMA ID)*)? classBody;
@@ -15,37 +15,31 @@ classBodyDeclaration: constructorDecl | classMemberDecl | functionDecl;
 constructorDecl: ID LPAREN (DataTypeList ID (COMMA DataTypeList ID)*)? RPAREN constructorBody;
 constructorBody: BEGIN (THIS DOT ID ASSIGN ID SEMI)+ END;
 
-classMemberDecl: AccessLevel? CONST? DataTypeList (variableDeclaratorList | arrayDecl) SEMI;
+classMemberDecl: AccessLevel? CONST? (variableDeclaratorList | arrayDecl) SEMI;
 variableDeclaratorList:	variableDeclarator (',' variableDeclarator)*;
-variableDeclarator: ID (ASSIGN literal)?;
-arrayDecl: ID LBRACK RBRACK (ASSIGN NEW DataTypeList LBRACK IntegerLiteral RBRACK)?;
+variableDeclarator: DataTypeList ID (ASSIGN (expression | ScientificNotation))?;
+arrayDecl: DataTypeList ID LBRACK RBRACK (ASSIGN NEW DataTypeList LBRACK IntegerLiteral RBRACK)?;
 
-functionDecl: AccessLevel? (DataTypeList | VOID) ID LPAREN parameters RPAREN statementBlock;
-parameters: parameter optionalParameter;
+functionDecl: AccessLevel? (DataTypeList | VOID) ID LPAREN parameters? RPAREN statementBlock;
+parameters: parameter optionalParameter?;
 parameter: DataTypeList ID (COMMA DataTypeList ID)*;
-optionalParameter: DataTypeList ID ASSIGN literal (COMMA DataTypeList ID ASSIGN literal)*;
-
+optionalParameter: COMMA DataTypeList ID ASSIGN literal (COMMA DataTypeList ID ASSIGN literal)*;
 
 statementBlock: BEGIN statement+ END;
 statement: assignment | ifStatement | forStatement | whileStatement | switchCase |
- exception | print | return | instantiation | functionCall | conditionalExpression;
+ exception | print | return | instantiation | functionCall | variableDeclarator SEMI;
 
 assignment:	leftHandSide assignmentOperator expression SEMI;
 leftHandSide:	expressionName | arrayAccess;
 arrayAccess: ID LBRACK expression RBRACK;
 assignmentOperator:	'=' |	'*=' |	'/=' | '%=' | '+=' |	'-=' |	'<<=' |	'>>=' | '>>>=' | '&=' | '^=' | '|=';
 
-
-expression: LPAREN expression RPAREN | expression '**' expression | expression (ADD | SUB) expression |
-expression (MUL | DIV | MOD) expression | expressionName | literal;
-
-unaryExpression:	preIncrementExpression |	preDecrementExpression
-	|	'+' unaryExpression |	'-' unaryExpression |	unaryExpressionNotPlusMinus;
-preIncrementExpression:	'++' unaryExpression;
-preDecrementExpression:	'--' unaryExpression;
-unaryExpressionNotPlusMinus:	'~' unaryExpression | '!' unaryExpression;
-
-conditionalExpression: expression '?' expression ':' expression;
+expression: expression '?' expression ':' expression | LPAREN expression RPAREN | expression '**' expression |
+ (TILDE| '!') expression |(ADD | SUB) expression |
+ expression (INC | DEC)  | (INC | DEC) expression | expression (MUL | DIV | MOD) expression |
+ expression (ADD | SUB) expression | expression ('<<' || '>>') expression |
+ expression ('&' | '|' | '^') expression | expression ('==' | '!=' | '<>') expression | expression ('<' | '>'  | LE | GE) expression |
+ expression (NOT | AND | OR | ANDSign | ORSign) expression | expressionName | literal | arrayAccess;
 
 forStatement: for1 | for2;
 for1: FOR LPAREN DataTypeList initilization SEMI expression (SEMI expressionName (INC | DEC))? RPAREN statementBlock;
@@ -56,26 +50,26 @@ whileStatement: while | doWhile;
 while: WHILE LPAREN expression RPAREN statementBlock;
 doWhile: DO statementBlock WHILE LPAREN expression RPAREN;
 
-ifStatement: IF LPAREN expression RPAREN statementBlock elseIf* else?;
+ifStatement: IF LPAREN? expression RPAREN? statementBlock elseIf* else?;
 elseIf: ELSE IF LPAREN expression RPAREN statementBlock;
 else: ELSE statementBlock;
 
 return: RETURN expression SEMI;
 
 switchCase: SWITCH expression BEGIN case+ default? END;
-case: CASE literal COLON statementBlock BREAK?;
-default: DEFAULT COLON statementBlock BREAK?;
+case: CASE literal COLON BEGIN? statement* END? (BREAK SEMI)?;
+default: DEFAULT COLON BEGIN? statement* END? BREAK?;
 
 exception: TRY statementBlock CATCH LPAREN expressionName (COMMA expressionName)* RPAREN statementBlock;
 
-print: PRINT LPAREN expression RPAREN SEMI;
+print: PRINT LPAREN (expression) (COMMA literal)? RPAREN SEMI;
 
-functionCall: expressionName LPAREN expression (COMMA expression)* RPAREN;
+functionCall: expressionName LPAREN expression (COMMA expression)* RPAREN SEMI;
 
 instantiation: expressionName;
 
-expressionName: ID | ambiguousName '.' ID;
-ambiguousName:	ID |	ambiguousName '.' ID;
+expressionName: ID | ambiguousName DOT ID;
+ambiguousName:	ID |	ambiguousName DOT ID | THIS DOT ID;
 
 
 literal:	IntegerLiteral |	DoubleLiteral |	BooleanLiteral |	CharacterLiteral |	StringLiteral | NullLiteral;
@@ -85,10 +79,10 @@ fragment NonZeroDigit: [1-9];
 fragment Digit: [0-9];
 fragment Letter: [a-zA-Z];
 fragment Sign: [+-];
-
+//todo fix literals bug
 //Literals
-DoubleLiteral: Sign? NonZeroDigit Digit;
-IntegerLiteral: Sign? ('0' | NonZeroDigit Digit*);
+DoubleLiteral: Sign? Digit* DOT Digit;
+IntegerLiteral: Sign? (Digit | NonZeroDigit Digit*);
 ScientificNotation: (Sign)? Digit? DOT Digit* [eE] Sign Digit* ;
 BooleanLiteral: 'true' | 'false';
 CharacterLiteral: '\'' ~['\\\r\n] '\'';
@@ -112,6 +106,7 @@ RETURN: 'return';
 FOR: 'for';
 AND: 'and';
 OR: 'or';
+NOT: 'not';
 IN: 'in';
 WHILE: 'while';
 DO: 'do';
@@ -161,7 +156,6 @@ BITOR : '|';
 CARET : '^';
 MOD : '%';
 ARROW : '->';
-
 
 ID: (Letter | '$') (Letter | Digit | '$' | '_')+;
 WS :  [ \t\r\n]+ -> skip;
