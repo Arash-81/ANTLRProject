@@ -1,0 +1,214 @@
+// A single line comment
+
+/* A 
+ * multiple line
+ * comment
+ */
+
+
+lib1 = require <math>;
+func1 = from <math> require <floor>;
+func2 = from <math> => < floor>;
+func1,func2 = from <math> require <floor> , from <math> require <rand>;
+
+
+class Animal (SuperClass) implements Class1, Class2 begin
+	
+	
+	private String $name;
+	
+	private int weight;
+	
+	private bool hasOwner = false;
+	
+	private char favoriteChar;
+	
+	private double speed = 2.24e3;
+	
+	private float height;
+
+	int myVar = 25, myVar2 = 56;
+
+	int myArray[] = new int[4];
+
+	float myInitiatedArray[] = [0.05, 42, 42.25, 43];
+
+	public Dot dot = Dot(1 , 2);
+
+	const Dot origin = Dot();
+
+	public Random rand;
+
+	Point point = Null;
+
+	Animal(String $name, int weight, bool hasOwner, float height)begin
+		this.name = name;
+		this.weight = weight;
+		this.hasOwner = hasOwner;
+		this.height = height;
+		print("data completely received!"); 
+	end
+	
+	public void setFavoriteChar() begin
+		
+		int randomNumber = (int) (Math.random() * 126) + 1;
+		
+		this.favoriteChar = (char) randomNumber;
+
+		if randomNumber == 32 begin
+			
+			print("Favorite character set to: Space");
+			
+		end 
+		else if(randomNumber == 10)begin
+			
+			print("Favorite character set to: New Line");
+			
+		end else begin
+		
+			print("Favorite character set to: " + this.favoriteChar);
+		
+		end
+		if((randomNumber > 97) && (randomNumber < 122))begin
+			
+			print("Favorite character is a lowercase letter");
+			
+		end
+		
+		if(((randomNumber > 97) && (randomNumber < 122)) || ((randomNumber > 64) && (randomNumber < 91)))begin
+			
+			print("Favorite character is a letter");
+			
+		end
+		
+		if(!false)begin
+			
+			print("I turned false to " + !false);
+			
+		end
+		
+		int whichIsBigger = (50 > randomNumber) ? 50 : randomNumber;
+		
+		print("The biggest number is " + whichIsBigger);
+		
+		
+		switch(randomNumber)begin
+		
+		case 8 :
+			print("Favorite character set to: Backspace");
+			break;
+			
+		case 9 :
+			print("Favorite character set to: Horizontal Tab");
+			break;
+			
+		case 10 :
+		case 11 :
+		case 12 : begin
+			println("Favorite character set to: Something else weird");
+			randomNumber++;
+			break;
+			end
+			
+		default :
+			print("Favorite character set to: " + this.favoriteChar);
+			break;
+
+		end
+		
+	end
+
+	double calculateDistance(double x2, double y2) begin
+		return Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));
+	end
+
+	public void countTo(int startingNumber)begin
+		
+		for(int ii = startingNumber; ii <= 100; ii++)begin
+			print(ii);
+			
+		end
+		
+	end
+	
+	String printNumbers(int maxNumbers)begin
+		
+		int ii = 1;
+		while(ii < (maxNumbers / 2))begin
+			
+			print(ii);
+			ii++;
+		end
+		
+		Animal.countTo(maxNumbers/2);
+		
+		
+
+		for p1 in myList begin
+
+			newList.add(p1.name);
+
+			print(myList[0]);
+		
+		end
+		return "End of printNumbers()";
+	end
+	
+	public void guessMyNumber()begin
+		
+		int number;
+		
+		do begin
+			
+			print("Guess my number up to 100");
+			
+			// If what they entered isn't a number send a warning
+			while(!userInput.hasNextInt())begin
+				
+				String numberEntered = userInput.next();
+				print("%s is not a number", numberEntered);
+				
+			end
+			number = userInput.nextInt();
+			
+		end while(number != 50)
+		
+		print("Yes the number was 50");
+		
+	end
+	
+
+
+	
+	public void main(String[] args)begin
+		
+		Animal theDog = new Animal();
+		
+		printf("The animal is named " + theDog.getName());
+		
+		print(Animal.printNumbers(100));
+		
+		Animal.countTo(100);
+		
+		Animal.guessMyNumber();
+		
+		int favoriteNumbers[] = new int[20];
+		
+		favoriteNumbers[0] = 100;
+		
+		String stringArray[] = ["Random", "Words", "Here"];
+		
+		for String word in stringArray begin	
+			print(word);	
+		end
+		
+		try begin
+			res = num1 / num2;
+		end
+		catch (DivideByZero, ValueError )begin
+			print(err, "oops.");
+		end
+			
+	end
+		
+end

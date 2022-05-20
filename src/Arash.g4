@@ -13,13 +13,14 @@ classBody: BEGIN classBodyDeclaration+ END;
 
 classBodyDeclaration: constructorDecl | classMemberDecl | functionDecl;
 constructorDecl: ID LPAREN (DataTypeList ID (COMMA DataTypeList ID)*)? RPAREN constructorBody;
-constructorBody: BEGIN (THIS DOT ID ASSIGN ID SEMI)+ END;
+constructorBody: BEGIN (THIS DOT ID ASSIGN ID SEMI)* statement* END;
 
 classMemberDecl: formalVariable | instantiation;
 formalVariable: AccessLevel? CONST? (variableDeclaratorList | arrayDecl) SEMI;
 variableDeclaratorList:	variableDeclarator (',' variableDeclarator)*;
 variableDeclarator: DataTypeList? ID (ASSIGN (ADD | SUB)? (expression | ScientificNotation))?;
-arrayDecl: DataTypeList ID LBRACK RBRACK (ASSIGN NEW DataTypeList LBRACK IntegerLiteral RBRACK)?;
+arrayDecl: DataTypeList ID LBRACK RBRACK ASSIGN?
+((NEW DataTypeList LBRACK IntegerLiteral RBRACK) | LBRACK literal (COMMA literal)* RBRACK);
 
 functionDecl: AccessLevel? (DataTypeList | VOID) ID LPAREN parameters? RPAREN statementBlock;
 parameters: parameter optionalParameter?;
@@ -28,24 +29,27 @@ optionalParameter: COMMA DataTypeList ID ASSIGN literal (COMMA DataTypeList ID A
 
 statementBlock: BEGIN statement+ END;
 statement: assignment | ifStatement | forStatement | whileStatement | switchCase |
- exception | print | return | instantiation | functionCall | variableDeclarator SEMI;
+ exception | print | return | instantiation | functionCall | variableDeclarator SEMI | incrementDecrement SEMI | arrayDecl SEMI;
 
 assignment:	leftHandSide assignmentOperator expression SEMI;
 leftHandSide:	expressionName | arrayAccess;
 arrayAccess: ID LBRACK expression RBRACK;
 assignmentOperator:	'=' |	'*=' |	'/=' | '%=' | '+=' |	'-=' |	'<<=' |	'>>=' | '>>>=' | '&=' | '^=' | '|=';
 
-expression: expression '?' expression ':' expression | LPAREN expression RPAREN | expression '**' expression |
- (TILDE| BANG | NOT) expression |(ADD | SUB) expression | expression (INC | DEC) | (INC | DEC) expression |
- expression (MUL | DIV | MOD) expression | expression (ADD | SUB) expression | expression ('<<' || '>>') expression |
- expression (BITAND | BITOR | CARET) expression | expression (EQUAL | NOTEQUAL | '<>') expression |
- expression ('<' | '>'  | LE | GE) expression | expression ( AND | OR | ANDSign | ORSign) expression |
- expressionName | literal | arrayAccess | array;
+expression: expression '?' expression ':' expression |LPAREN DataTypeList RPAREN expression | LPAREN expression RPAREN |
+ expression '**' expression | (TILDE| BANG | NOT) expression |(ADD | SUB) expression | incrementDecrement|
+ expression (MUL | DIV | MOD) expression | expression (ADD | SUB) expression |
+ expression ('<<' || '>>') expression | expression (BITAND | BITOR | CARET) expression |
+ expression (EQUAL | NOTEQUAL | '<>') expression | expression ('<' | '>'  | LE | GE) expression |
+ expression ( AND | OR | ANDSign | ORSign) expression |
+ expressionName (LPAREN RPAREN)?| literal | arrayAccess | array;
+
+incrementDecrement: (INC | DEC) expressionName | expressionName (INC | DEC);
 
 forStatement: for1 | for2;
 for1: FOR LPAREN DataTypeList? initilization SEMI expression (SEMI expressionName (INC | DEC))? RPAREN statementBlock;
-initilization: expressionName ASSIGN IntegerLiteral;
-for2: FOR  expressionName IN expressionName statementBlock;
+initilization: expressionName ASSIGN (IntegerLiteral | expressionName);
+for2: FOR  DataTypeList? expressionName IN expressionName statementBlock;
 
 whileStatement: while | doWhile;
 while: WHILE LPAREN expression RPAREN statementBlock;
@@ -58,20 +62,20 @@ else: ELSE statementBlock;
 return: RETURN (functionCall | expression SEMI);
 
 switchCase: SWITCH expression BEGIN case+ default? END;
-case: CASE literal COLON BEGIN? statement* END? (BREAK SEMI)?;
-default: DEFAULT COLON BEGIN? statement* END? (BREAK SEMI)?;
+case: CASE literal COLON BEGIN? statement* (BREAK SEMI)? END?;
+default: DEFAULT COLON BEGIN? statement* (BREAK SEMI)? END?;
 
 exception: TRY statementBlock CATCH LPAREN expressionName (COMMA expressionName)* RPAREN statementBlock;
 
-print: PRINT LPAREN (expression) (COMMA literal)? RPAREN SEMI;
+print: PRINT LPAREN (expression) (ADD expression)* (COMMA expression)? RPAREN SEMI;
 
-functionCall: expressionName LPAREN expression (COMMA expression)* RPAREN SEMI;
+functionCall: expressionName LPAREN (expression (COMMA expression)*)? RPAREN SEMI;
 
-instantiation: AccessLevel? expressionName expressionName
- (ASSIGN (NullLiteral | expressionName LPAREN expression (COMMA expression)* RPAREN))? SEMI;
+instantiation: AccessLevel? CONST? expressionName expressionName
+ (ASSIGN (NullLiteral | NEW? expressionName LPAREN (expression (COMMA expression)*)?RPAREN))? SEMI;
 
 expressionName: ID | ambiguousName DOT ID;
-ambiguousName:	ID |	ambiguousName DOT ID | THIS DOT ID;
+ambiguousName:	ID |	ambiguousName DOT ID | THIS;
 
 literal:	IntegerLiteral |	FloatingPointLiteral |	BooleanLiteral |	CharacterLiteral |	StringLiteral | NullLiteral;
 array: LBRACK (literal (COMMA literal)*)? RBRACK;
@@ -91,7 +95,7 @@ StringLiteral: '"' ~["\\\r\n]* '"';
 NullLiteral: 'Null';
 
 // Keywords
-DataTypeList: ('int' | 'double' | 'bool' | 'string' | 'char' | 'float') (LBRACK RBRACK)*;
+DataTypeList: ('int' | 'double' | 'bool' | 'string' | 'String' | 'char' | 'float') (LBRACK RBRACK)*;
 AccessLevel: 'private' | 'public';
 REQUIRE: 'require';
 BEGIN: 'begin';
