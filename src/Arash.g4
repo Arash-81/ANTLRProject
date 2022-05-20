@@ -15,9 +15,10 @@ classBodyDeclaration: constructorDecl | classMemberDecl | functionDecl;
 constructorDecl: ID LPAREN (DataTypeList ID (COMMA DataTypeList ID)*)? RPAREN constructorBody;
 constructorBody: BEGIN (THIS DOT ID ASSIGN ID SEMI)+ END;
 
-classMemberDecl: AccessLevel? CONST? (variableDeclaratorList | arrayDecl) SEMI;
+classMemberDecl: formalVariable | instantiation;
+formalVariable: AccessLevel? CONST? (variableDeclaratorList | arrayDecl) SEMI;
 variableDeclaratorList:	variableDeclarator (',' variableDeclarator)*;
-variableDeclarator: DataTypeList ID (ASSIGN (expression | ScientificNotation))?;
+variableDeclarator: DataTypeList? ID (ASSIGN (ADD | SUB)? (expression | ScientificNotation))?;
 arrayDecl: DataTypeList ID LBRACK RBRACK (ASSIGN NEW DataTypeList LBRACK IntegerLiteral RBRACK)?;
 
 functionDecl: AccessLevel? (DataTypeList | VOID) ID LPAREN parameters? RPAREN statementBlock;
@@ -35,14 +36,14 @@ arrayAccess: ID LBRACK expression RBRACK;
 assignmentOperator:	'=' |	'*=' |	'/=' | '%=' | '+=' |	'-=' |	'<<=' |	'>>=' | '>>>=' | '&=' | '^=' | '|=';
 
 expression: expression '?' expression ':' expression | LPAREN expression RPAREN | expression '**' expression |
- (TILDE| '!') expression |(ADD | SUB) expression |
- expression (INC | DEC)  | (INC | DEC) expression | expression (MUL | DIV | MOD) expression |
- expression (ADD | SUB) expression | expression ('<<' || '>>') expression |
- expression ('&' | '|' | '^') expression | expression ('==' | '!=' | '<>') expression | expression ('<' | '>'  | LE | GE) expression |
- expression (NOT | AND | OR | ANDSign | ORSign) expression | expressionName | literal | arrayAccess;
+ (TILDE| BANG | NOT) expression |(ADD | SUB) expression | expression (INC | DEC) | (INC | DEC) expression |
+ expression (MUL | DIV | MOD) expression | expression (ADD | SUB) expression | expression ('<<' || '>>') expression |
+ expression (BITAND | BITOR | CARET) expression | expression (EQUAL | NOTEQUAL | '<>') expression |
+ expression ('<' | '>'  | LE | GE) expression | expression ( AND | OR | ANDSign | ORSign) expression |
+ expressionName | literal | arrayAccess | array;
 
 forStatement: for1 | for2;
-for1: FOR LPAREN DataTypeList initilization SEMI expression (SEMI expressionName (INC | DEC))? RPAREN statementBlock;
+for1: FOR LPAREN DataTypeList? initilization SEMI expression (SEMI expressionName (INC | DEC))? RPAREN statementBlock;
 initilization: expressionName ASSIGN IntegerLiteral;
 for2: FOR  expressionName IN expressionName statementBlock;
 
@@ -51,14 +52,14 @@ while: WHILE LPAREN expression RPAREN statementBlock;
 doWhile: DO statementBlock WHILE LPAREN expression RPAREN;
 
 ifStatement: IF LPAREN? expression RPAREN? statementBlock elseIf* else?;
-elseIf: ELSE IF LPAREN expression RPAREN statementBlock;
+elseIf: ELSE IF LPAREN? expression RPAREN? statementBlock;
 else: ELSE statementBlock;
 
-return: RETURN expression SEMI;
+return: RETURN (functionCall | expression SEMI);
 
 switchCase: SWITCH expression BEGIN case+ default? END;
 case: CASE literal COLON BEGIN? statement* END? (BREAK SEMI)?;
-default: DEFAULT COLON BEGIN? statement* END? BREAK?;
+default: DEFAULT COLON BEGIN? statement* END? (BREAK SEMI)?;
 
 exception: TRY statementBlock CATCH LPAREN expressionName (COMMA expressionName)* RPAREN statementBlock;
 
@@ -66,31 +67,31 @@ print: PRINT LPAREN (expression) (COMMA literal)? RPAREN SEMI;
 
 functionCall: expressionName LPAREN expression (COMMA expression)* RPAREN SEMI;
 
-instantiation: expressionName;
+instantiation: AccessLevel? expressionName expressionName
+ (ASSIGN (NullLiteral | expressionName LPAREN expression (COMMA expression)* RPAREN))? SEMI;
 
 expressionName: ID | ambiguousName DOT ID;
 ambiguousName:	ID |	ambiguousName DOT ID | THIS DOT ID;
 
-
-literal:	IntegerLiteral |	DoubleLiteral |	BooleanLiteral |	CharacterLiteral |	StringLiteral | NullLiteral;
+literal:	IntegerLiteral |	FloatingPointLiteral |	BooleanLiteral |	CharacterLiteral |	StringLiteral | NullLiteral;
+array: LBRACK (literal (COMMA literal)*)? RBRACK;
 
 //fragments
 fragment NonZeroDigit: [1-9];
 fragment Digit: [0-9];
 fragment Letter: [a-zA-Z];
-fragment Sign: [+-];
-//todo fix literals bug
+
 //Literals
-DoubleLiteral: Sign? Digit* DOT Digit;
-IntegerLiteral: Sign? (Digit | NonZeroDigit Digit*);
-ScientificNotation: (Sign)? Digit? DOT Digit* [eE] Sign Digit* ;
+FloatingPointLiteral: Digit* DOT Digit+;
+IntegerLiteral: (Digit | NonZeroDigit Digit*);
+ScientificNotation: Digit? DOT Digit* [eE] (ADD | SUB) Digit* ;
 BooleanLiteral: 'true' | 'false';
 CharacterLiteral: '\'' ~['\\\r\n] '\'';
 StringLiteral: '"' ~["\\\r\n]* '"';
 NullLiteral: 'Null';
 
 // Keywords
-DataTypeList: 'int' | 'double' | 'bool' | 'string' | 'char';
+DataTypeList: ('int' | 'double' | 'bool' | 'string' | 'char' | 'float') (LBRACK RBRACK)*;
 AccessLevel: 'private' | 'public';
 REQUIRE: 'require';
 BEGIN: 'begin';

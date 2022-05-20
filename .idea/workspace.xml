@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="21d7c5a9-4558-4108-bd3f-89190c026fa9" name="Changes" comment="" />
+    <list default="true" id="21d7c5a9-4558-4108-bd3f-89190c026fa9" name="Changes" comment="fix some bugs">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Arash.g4" beforeDir="false" afterPath="$PROJECT_DIR$/src/Arash.g4" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -9,6 +12,9 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectId" id="29MzaoBXxg1lB1VOxjzvfjW6sf1" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -19,7 +25,11 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true"
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "last_opened_file_path": "D:/Uni/Theory of languages and machines/ANTLR/MyProject/test1.txt",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0"
   }
 }]]></component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -31,6 +41,49 @@
       <option name="presentableId" value="Default" />
       <updated>1652937813368</updated>
     </task>
+    <task id="LOCAL-00001" summary="Initializing">
+      <created>1652938045918</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1652938045918</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Add java lexers">
+      <created>1652940508792</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1652940508792</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Add all lexer rules">
+      <created>1652941422087</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1652941422087</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Add 1'st set of parser rules">
+      <created>1652944297563</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1652944297563</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Add statement parser with dependencies">
+      <created>1652948389991</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1652948389991</updated>
+    </task>
+    <task id="LOCAL-00006" summary="fix some bugs">
+      <created>1652956397374</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1652956397374</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -43,5 +96,15 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Initializing" />
+    <MESSAGE value="Add java lexers" />
+    <MESSAGE value="Add all lexers rule" />
+    <MESSAGE value="Add all lexer rules" />
+    <MESSAGE value="Add 1'st set of parser rules" />
+    <MESSAGE value="Add statement parser with dependencies" />
+    <MESSAGE value="fix some bugs" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix some bugs" />
   </component>
 </project>
